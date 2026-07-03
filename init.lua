@@ -1,6 +1,7 @@
 require("config.lazy")
 
 vim.g.mapleader = " "
+vim.opt.relativenumber = true
 
 -- Tabs
 vim.keymap.set('n', '<leader>r', 'gt')
