@@ -14,7 +14,17 @@ return {
       dependencies = { "nvim-lua/plenary.nvim" }
    },
    {
-      "lewis6991/gitsigns.nvim"
+      "lewis6991/gitsigns.nvim",
+      config = function()
+         require("gitsigns").setup({
+            on_attach = function(bufnr)
+               local gs = require("gitsigns")
+               local opts = { buffer = bufnr }
+               vim.keymap.set("n", "]g", gs.next_hunk, opts)
+               vim.keymap.set("n", "[g", gs.prev_hunk, opts)
+            end,
+         })
+      end,
    },
    {
       "rmagatti/goto-preview",
