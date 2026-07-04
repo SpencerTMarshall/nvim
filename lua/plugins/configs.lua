@@ -39,7 +39,12 @@ return {
    },
    {
       "nvim-treesitter/nvim-treesitter",
-      lazy=false
+      lazy = false,
+      config = function()
+         require("nvim-treesitter").setup({
+            ensure_installed = { "lua", "rust", "toml" },
+         })
+      end,
    },
    { "williamboman/mason.nvim" },
    {

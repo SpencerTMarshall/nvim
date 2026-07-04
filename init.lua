@@ -14,6 +14,24 @@ local builtin = require("telescope.builtin")
 vim.keymap.set("n", "<leader>o", builtin.find_files)
 vim.keymap.set("n", "<leader>p", builtin.live_grep)
 
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+
+vim.keymap.set("n", "]z", "zj")
+vim.keymap.set("n", "[z", function()
+  local cur = vim.fn.line(".")
+  for lnum = cur - 1, 1, -1 do
+    local this_level = vim.fn.foldlevel(lnum)
+    local prev_level = lnum > 1 and vim.fn.foldlevel(lnum - 1) or 0
+    if this_level > prev_level and this_level > 0 then
+      vim.fn.cursor(lnum, 1)
+      return
+    end
+  end
+end)
+
 vim.cmd("set shiftwidth=3")
 vim.cmd("set expandtab")
 vim.cmd("set tabstop=4")
