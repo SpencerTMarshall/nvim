@@ -21,8 +21,8 @@ vim.cmd("set tabstop=4")
 vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     local path = vim.fn.expand("%:p:h")
-    local root = vim.fn.systemlist("git -C " .. vim.fn.shellescape(path) .. " rev-parse --show-toplevel")[1]
-    if vim.v.shell_error == 0 then
+    local root = vim.fs.root(path, ".git")
+    if root then
       vim.cmd("cd " .. vim.fn.fnameescape(root))
     end
   end,
