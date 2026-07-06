@@ -16,16 +16,49 @@ vim.api.nvim_create_autocmd("LspAttach", {
   end,
 })
 
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+
+local function apply_project_venv_settings(config, root_dir)
+	if not root_dir then
+		return
+	end
+
+	local venv_dir = vim.fs.find(".venv", {
+		path = root_dir,
+		upward = true,
+		type = "directory",
+	})[1]
+
+	if not venv_dir then
+		return
+	end
+
+	local venv_root = vim.fs.dirname(venv_dir)
+
+	config.settings = vim.tbl_deep_extend("force", config.settings or {}, {
+		python = {
+			pythonPath = venv_dir .. "/bin/python",
+			venv = ".venv",
+			venvPath = venv_root,
+		},
+	})
+end
+
+local function use_project_venv(client)
+	apply_project_venv_settings(client.config, client.config.root_dir)
+	client.settings = vim.tbl_deep_extend("force", client.settings or {}, client.config.settings or {})
+	client:notify("workspace/didChangeConfiguration", { settings = nil })
+end
+
 require("mason").setup()
+vim.lsp.config("*", {
+	capabilities = capabilities,
+})
+vim.lsp.config("pyright", {
+	on_init = use_project_venv,
+})
 require("mason-lspconfig").setup({
-	automatic_installation = true,
-	handlers = {
-		function(server_name)
-			require("lspconfig")[server_name].setup({
-				capabilities = require("cmp_nvim_lsp").default_capabilities(),
-			})
-		end,
-	},
+	automatic_enable = true,
 })
 
 local cmp = require("cmp")
