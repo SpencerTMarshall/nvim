@@ -19,17 +19,36 @@ vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
 vim.opt.foldlevelstart = 99
 
-vim.keymap.set("n", "]z", "zj")
-vim.keymap.set("n", "[z", function()
+vim.keymap.set("n", "]z", function()
   local cur = vim.fn.line(".")
-  for lnum = cur - 1, 1, -1 do
+  local last = vim.fn.line("$")
+  for lnum = cur, last do
     local this_level = vim.fn.foldlevel(lnum)
-    local prev_level = lnum > 1 and vim.fn.foldlevel(lnum - 1) or 0
-    if this_level > prev_level and this_level > 0 then
-      vim.fn.cursor(lnum, 1)
-      return
+    local next_level = lnum < last and vim.fn.foldlevel(lnum + 1) or 0
+    if this_level >= 1 and next_level < 1 then
+      if lnum > cur then
+        vim.fn.cursor(lnum, 1)
+        return
+      end
+      break
     end
   end
+  vim.cmd("normal! zj")
+end)
+vim.keymap.set("n", "[z", function()
+  local cur = vim.fn.line(".")
+  for lnum = cur, 1, -1 do
+    local this_level = vim.fn.foldlevel(lnum)
+    local prev_level = lnum > 1 and vim.fn.foldlevel(lnum - 1) or 0
+    if this_level >= 1 and prev_level < 1 then
+      if lnum < cur then
+        vim.fn.cursor(lnum, 1)
+        return
+      end
+      break
+    end
+  end
+  vim.cmd("normal! zk")
 end)
 
 vim.cmd("set shiftwidth=3")
